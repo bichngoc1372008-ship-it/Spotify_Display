@@ -1,0 +1,81 @@
+//Import Libaries
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
+#include <WiFi.h>
+#include <SpotifyEsp32.h>
+#include <SPI.h>
+
+//Variables to stores users' Wifi credentials in the file
+char* SSID = "INSERT_SSID_HERE";
+char* PASSWORD = "INSERT_PASSWORD_HERE";
+
+// VAR FOR USERS INFO  
+const char* CLIENT_ID = "CLIENT_ID";      //fixed var, can't change and fixed memory 
+const char* CLIENT_SECRET = "CLIENT_SECRET";
+
+// VAR SPOTIFY STUFFS (changable var, memory is not fixed)
+String lastArtist; //set up a string var
+String lastTrackname;
+
+//Create objects, let stores data and usable functions
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST); //create object named tft, a controller to talk to the display
+Spotify info(CLIENT_ID, CLIENT_SECRET); //create object named info
+
+void setup() {
+  Serial.begin(115200);
+
+  ////// SET UP DISPLAY SCREEN //////
+  tft.initR(INITR_BLACKTAB); //type of screen
+  tft.setRotation(1);    //set the landscape
+  Serial.println("TFT Initialized!"); //notify if the screen works
+  tft.fillScreen(ST7735_BLACK);
+
+  //////    WIFI SETUP //////
+  WiFi.begin(SSID, PASSWORD); // Attempt to connect to wifi
+  Serial.print("Connecting to WiFi..."); // This will print into the console!
+  while(WiFi.status() != WL_CONNECTED) // Checking if the wifi has connected
+  {
+    delay(1000);
+    Serial.print("."); // show a loading dot every second
+  }
+  Serial.printf("\nConnected!\n"); // Wifi connected!
+
+  ////////// DISPLAY SCREEN CONT /////////
+  tft.setCursor(0,0) //creates a cursor top left screen
+  tft.write(WiFi.localIP().toString().c_str());  //print out IP address
+
+  ///// TAKING USER'S INFO /////
+  info.begin();       //initialize Spotify connection, starting communication between device and Spotify
+  while (!info.is_auth()){ //check if it's authenticated yet
+    info.handle_client();  // process authentication steps
+    delay(2000);
+  }
+  Serial.println("Connected to Spotify!");
+
+
+}
+
+void loop() {
+  // This let the change of artist and song on the screen continuously updated when need
+  String currentArtist = info.current_artist_names();
+  String currentTrackname = info.current_track_name();
+
+  if (lastArtist != currentArtist && currentArtist != "Something went wrong" && !currentArtist.isEmpty()) {
+    tft.fillScreen(ST&&XX_BLACK);
+    lastArtist = currentArtist;
+    Serial.println("Artist: " + lastArtist);
+    tft.setCursor(10, 10);
+    tft.write(lastArtist.c_str());
+  }
+  
+  if (lastTrackname != currentTrackname && currentTrackname != "Something went wrong" && currentTrackname != "null"){
+    lastTrackname = currentTrackname;
+    Serial.println("Track: " + lastTrackname);
+    tft.setCursor(10, 40);
+    tft.write(lastTrackname.c_str());
+
+  }
+  delay(2000);
+}
