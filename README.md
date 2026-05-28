@@ -16,6 +16,6 @@ This is my second time using Fusion 360, and it's quite challenging for me to ge
 - 1.8" TFT Display
 
    Case
-:-------------------------:|
+|:-------------------------:|
 ![image](case/Spotify_case.png)
 
