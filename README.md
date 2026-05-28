@@ -11,9 +11,9 @@ This is my second time using Fusion 360, and it's quite challenging for me to ge
 
 ### Specifications
 
-ESP 32
-3D printed case
-1.8" TFT Display
+- ESP 32
+- 3D printed case
+- 1.8" TFT Display
 
    Case
 :-------------------------:|
